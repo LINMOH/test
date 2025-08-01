@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>地图</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link 
+    rel="stylesheet" 
+    href="https://unpkg.com/leaflet/dist/leaflet.css" 
+  />
+  <style>
+    #map { height:100vh; margin:0; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([31.2304,121.4737],5);
+    const gdSt = L.tileLayer(
+      'https://webrd0{s}.is.autonavi.com/appmaptile?' +
+      'lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}&key=	32d8d5010deb266f78c20aa2befc50d8',
+      { subdomains:['1','2','3','4'], attribution:'&copy; 高德地图' }
+    );
+    const gdSat = L.tileLayer(
+      'https://webst0{s}.is.autonavi.com/appmaptile?' +
+      'style=6&x={x}&y={y}&z={z}&ltype=screen&key=	32d8d5010deb266f78c20aa2befc50d8',
+      { subdomains:['1','2','3','4'], attribution:'&copy; 高德卫星' }
+    );
+    const traffic = L.tileLayer(
+      'https://{s}.your-traffic-provider.com/tiles/traffic/{z}/{x}/{y}.png',
+      { attribution:'路况 &copy; 提供者', opacity:0.7 }
+    );
+    gdSt.addTo(map);
+    L.control.layers(
+      { '街道（高德）': gdSt, '卫星（高德）': gdSat },
+      { '路况': traffic },
+      { position:'bottomleft' }
+    ).addTo(map);
+
+    //好友数据 & 自定义头像＋名字标记
+      //avatar是头像链接,  最后的url是个人网站的链接
+    const friends = [
+      { name:'张三', lat:39.9042, lon:116.4074, note:'北京', avatar:'https://api.zxki.cn/api/sjtx?type=image', url:'https://zhangsan.com' },
+      { name:'李四', lat:31.2304, lon:121.4737, note:'上海', avatar:'https://api.zxki.cn/api/sjtx?type=image', url:'https://lisi.com' },
+      { name:'王五', lat:22.3193, lon:114.1694, note:'香港', avatar:'https://api.zxki.cn/api/sjtx?type=image', url:'https://wangwu.com' }
+    ];
+
+
+    friends.forEach(f => {
+      const html = `
+        <div style="text-align:center;">
+          <img src="${f.avatar}"
+              style="width:40px;height:40px;
+                      border-radius:50%;
+                      border:2px solid #fff;">
+          <div style="
+            display:inline-block;
+            white-space:nowrap;
+            font-size:14px;
+            color:#333;
+            background:rgba(255,255,255,0.8);
+            padding:2px 6px;
+            border-radius:4px;
+            margin-top:4px;
+          ">${f.name}</div>
+        </div>`;
+      const ico = L.divIcon({
+        html, className:'', iconAnchor:[20,45], popupAnchor:[0,-45]
+      });
+      L.marker([f.lat,f.lon],{icon:ico})
+      .addTo(map)
+      .bindPopup(`
+        <div style="text-align:center;">
+          <b>${f.name}</b><br>
+          ${f.note}<br>
+          <a href="${f.url}" target="_blank" style="color:blue;">个人网站</a>
+        </div>
+      `);
+    });
+
+  </script>
+</body>
+</html>
